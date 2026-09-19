@@ -55,11 +55,12 @@ pages/
    (variables, reset, typography). Shared images live in `images/`. Only copy
    an image into a feature folder if it is used by that feature alone.
 
-6. **Use root-relative paths.** Every page's `<head>` must include
-   `<base href="/" />`, which makes all paths resolve from the project root.
-   Never use `../` traversal. Reference assets and pages directly from the
-   root: `global.css`, `images/...`, `pages/<feature>/<feature>.html`,
-   `index.html`.
+6. **Use root-relative paths with `<base href="/" />`.** Every page's `<head>` must include `<base href="/" />` before any stylesheets or scripts:
+   ```html
+   <base href="/" />
+   ```
+   This ensures that all paths resolve from the project root locally (`/`). During deployment to GitHub Pages, the `.github/workflows/deploy.yml` GitHub Actions workflow automatically updates `<base href="/" />` to `<base href="/<repo-name>/" />` in all HTML files before deployment.
+   Never use `../` traversal. Reference assets and pages directly from the root: `global.css`, `images/...`, `pages/<feature>/<feature>.html`, `index.html`.
 
 ## Conventions
 
@@ -70,9 +71,8 @@ pages/
 - Write code that matches existing patterns: BEM-style class names, CSS custom
   properties from `global.css`, and the `reveal` animation classes already used
   on the site.
-- Serving: because `<base href="/" />` requires an origin, pages must be
-  served over HTTP (e.g. `python -m http.server`) during development — opening
-  the HTML directly via `file://` will not resolve paths.
+- Serving: because `<base>` resolution requires an HTTP origin, pages should be
+  served over HTTP (e.g. `python -m http.server`) during development.
 
 ## Navigation Links
 

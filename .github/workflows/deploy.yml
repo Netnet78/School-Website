@@ -1,0 +1,49 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Set Base URL for GitHub Pages Deployment
+        run: |
+          BASE_PATH="${{ steps.pages.outputs.base_path }}"
+          if [ -z "$BASE_PATH" ]; then
+            BASE_PATH="/${{ github.event.repository.name }}"
+          fi
+          # Ensure trailing slash
+          [[ "$BASE_PATH" != */ ]] && BASE_PATH="${BASE_PATH}/"
+          echo "Updating <base href=\"/\"> to <base href=\"${BASE_PATH}\"> in all HTML files"
+          find . -name "*.html" -type f -exec sed -i -E "s|<base[[:space:]]+href=[\"']\/[\"'][[:space:]]*\/?>|<base href=\"${BASE_PATH}\" />|g" {} +
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: "."
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
